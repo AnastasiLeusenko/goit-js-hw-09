@@ -1,44 +1,56 @@
-const form = document.querySelector('.feedback-form');
-let formData = { email: "", message: "" };
-const localStorageKey = "feedback-form-state";
+const feedbackForm = document.querySelector('.feedback-form');
 
-function saveToLocalStorage() {
-    localStorage.setItem(localStorageKey, JSON.stringify(formData));
-}
+let formData = {
+  email: '',
+  message: '',
+};
 
-function loadFromLocalStorage() {
-    try {
-        const storedData = localStorage.getItem(localStorageKey);
-        if (storedData) {
-            formData = JSON.parse(storedData);
-            form.elements.email.value = formData.email;
-            form.elements.message.value = formData.message;
-        }
-    } catch (error) {
-        console.error("Помилка при завантаженні з локального сховища:", error);
-        localStorage.removeItem(localStorageKey);
+const fillFormField = event => {
+  try {
+    const formDataLS = JSON.parse(localStorage.getItem('feedback-form-state'));
+    if (formDataLS === null) {
+      return;
     }
-}
-
-loadFromLocalStorage();
-
-form.addEventListener('input', (event) => {
-    const { name, value } = event.target;
-    formData[name] = value.trim();
-    saveToLocalStorage();
-});
-
-form.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    if (formData.email.trim() === "" || formData.message.trim() === "") {
-        alert("Fill please all fields");
-        return;
-    }
-
+    formData = formDataLS;
     console.log(formData);
+    for (const key in formDataLS) {
+      feedbackForm.elements[key].value = formDataLS[key];
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-    localStorage.removeItem(localStorageKey);
-    formData = { email: "", message: "" };
-    form.reset();
-});
+fillFormField();
+const onFormFieldChange = event => {
+  const formFieldEl = event.target;
+
+  const fieldValue = formFieldEl.value;
+  const fieldName = formFieldEl.name;
+
+  formData[fieldName] = fieldValue;
+
+  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+};
+
+const onFeedbackFormSubmit = event => {
+  event.preventDefault();
+  if (
+    !(formData.email && formData.email.trim()) ||
+    !(formData.message && formData.message.trim())
+  ) {
+    alert('Fill please all fields');
+    return;
+  }
+
+  console.log(formData);
+
+  formData = {};
+  const formEl = event.currentTarget;
+
+  formEl.reset();
+  localStorage.removeItem('feedback-form-state');
+};
+
+feedbackForm.addEventListener('input', onFormFieldChange);
+feedbackForm.addEventListener('submit', onFeedbackFormSubmit);
