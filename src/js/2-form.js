@@ -16,7 +16,7 @@ function loadFromLocalStorage() {
         }
     } catch (error) {
         console.error("Помилка при завантаженні з локального сховища:", error);
-        localStorage.removeItem(localStorageKey); // Очищаємо пошкоджені дані
+        localStorage.removeItem(localStorageKey);
     }
 }
 
